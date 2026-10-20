@@ -38,10 +38,10 @@ const roster = [
   { name: "Ron",  skill: 4 },
   { name: "Jen",   skill: 5 },
   { name: "Caleb",  skill: 6 },
-  { name: "xKiran",  skill: 6 },
+  { name: "Kiran",  skill: 6 },
 ];
 // ==========================================================
-const skillLevels=[3,4,5,6],genericCounts={3:0,4:0,5:0,6:0},selectedPlayers=new Set();let mode='team';
+const skillLevels=[1,2,3,4,5,6,7,8,9],genericCounts={1:0,2:0,3:0,4:0,5:0,6:0,7:0,8:0,9:0},selectedPlayers=new Set();let mode='team';
 const esc=s=>String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 function renderRoster(){const root=document.getElementById('rosterGrid');root.innerHTML='';roster.forEach((p,i)=>{const b=document.createElement('button');b.className='player-btn';b.innerHTML=`<span><span class="check">✓</span><span class="player-name">${esc(p.name)}</span></span><span class="skill-pill sl-${p.skill}">SL${p.skill}</span>`;b.onclick=()=>{selectedPlayers.has(i)?selectedPlayers.delete(i):selectedPlayers.add(i);b.classList.toggle('selected',selectedPlayers.has(i));calculate()};root.appendChild(b)})}
 function renderCounters(){const root=document.getElementById('players');root.innerHTML='';skillLevels.forEach(s=>{const d=document.createElement('div');d.className='skill';d.innerHTML=`<div class="label">Skill ${s}</div><div class="counter"><button data-s="${s}" data-d="-1">−</button><div class="count" id="count-${s}">${genericCounts[s]}</div><button data-s="${s}" data-d="1">+</button></div>`;root.appendChild(d)});root.querySelectorAll('button[data-s]').forEach(b=>b.onclick=()=>{const s=+b.dataset.s,d=+b.dataset.d;genericCounts[s]=Math.max(0,genericCounts[s]+d);document.getElementById(`count-${s}`).textContent=genericCounts[s];calculate()})}
