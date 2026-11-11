@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#f5f6f8">
+<title>APA 9-Ball Scorekeeper</title>
+<style>
+:root{--bg:#f5f6f8;--panel:#fff;--panel2:#eaf2ff;--line:#e2e5e9;--muted:#6d727a;--text:#17181b;--accent:#1f6feb;--good:#2e7d32;--danger:#b42318;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-size:15px;line-height:1.4}
+button,input{font:inherit}button{cursor:pointer;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--text);padding:9px 12px;font-weight:750}
+button:active{transform:scale(.98)}button.primary{background:var(--accent);color:#fff;border-color:var(--accent);font-weight:750}
+button.subtle{background:transparent}button.danger{color:var(--danger)}
+header{padding:18px 16px 12px;max-width:1100px;margin:auto;display:flex;align-items:center;justify-content:space-between;gap:12px}
+h1{font-size:20px;margin:0} .eyebrow{color:var(--muted);font-size:12px;letter-spacing:.08em;text-transform:uppercase}
+main{max-width:1100px;margin:auto;padding:0 14px 40px}
+.setup,.toolbar,.player,.dead,.rackbar,.statbox{background:var(--panel);border:1px solid var(--line);border-radius:16px}
+.setup{padding:14px;margin-bottom:12px;display:grid;grid-template-columns:1fr 1fr auto;gap:10px;align-items:end}
+label{display:block;color:var(--muted);font-size:12px;margin-bottom:5px}
+input{width:100%;min-width:0;background:#fff;color:var(--text);border:1px solid var(--line);border-radius:9px;padding:10px}
+.setup-actions{display:flex;gap:8px}
+.toolbar{padding:10px 12px;display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+.rack-title{font-weight:750}.hint{font-size:12px;color:var(--muted)}
+.scoregrid{display:grid;grid-template-columns:1fr minmax(150px,190px) 1fr;gap:12px;align-items:start}.mid{padding:12px;position:sticky;top:8px}.mid .dropzone{margin-top:0;min-height:150px}.mid .balls{justify-content:center}.innings{text-align:center;margin-bottom:12px}.innings .statlabel{display:block;margin-bottom:6px}.innings .stepper{justify-content:center;align-items:center;gap:10px}.innings .statvalue{font-size:30px;min-width:36px}.innings .stepper button{padding:6px 14px;font-size:18px}.tablehint{text-align:center;font-size:11px;color:var(--muted);margin-top:8px}
+.player{padding:12px;min-width:0}.playerhead{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}
+.playername{font-weight:800;font-size:17px;overflow-wrap:anywhere}.sl{font-size:12px;color:var(--muted)}
+.scoreline{display:flex;align-items:baseline;gap:8px;margin:8px 0 10px}
+.score{font-size:36px;font-weight:850;line-height:1}.target{color:var(--muted);font-size:13px}
+.progress{height:6px;border-radius:9px;background:#e9ecf0;overflow:hidden;margin:0 0 12px}.progress span{display:block;height:100%;background:var(--good);width:0}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.statbox{padding:8px 9px;background:#fafafa}.statrow{display:flex;justify-content:space-between;align-items:center;gap:6px}.statlabel{font-size:12px;color:var(--muted)}.statvalue{font-size:18px;font-weight:750;font-variant-numeric:tabular-nums}
+.stepper{display:flex;gap:5px}.stepper button{padding:4px 10px;min-width:34px}
+.dropzone{min-height:100px;border:1px dashed #b8c4d4;border-radius:11px;padding:8px;margin-top:10px;background:#fafafa;transition:.12s}
+.dropzone.over{border:2px solid var(--accent);background:var(--panel2)}.zonehead{font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:7px}
+.balls{display:flex;flex-wrap:wrap;gap:7px;min-height:36px;align-items:center}
+.ball{--c:#999;width:40px;height:40px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:15px;color:#17181b;background:radial-gradient(circle at 35% 30%,color-mix(in srgb,var(--c),#fff 35%),var(--c) 55%,color-mix(in srgb,var(--c),#000 40%));box-shadow:inset -3px -4px 7px #0004,0 3px 6px #0003,0 1px 2px #0003;touch-action:none;user-select:none;cursor:grab;position:relative;isolation:isolate;transition:transform .12s,box-shadow .12s}
+.ball:hover{transform:translateY(-2px);box-shadow:inset -3px -4px 7px #0004,0 6px 10px #0003}
+.ball::before{content:"";position:absolute;width:48%;height:48%;border-radius:50%;background:#fff;box-shadow:inset 0 -1px 2px #0003;z-index:-1}
+.ball::after{content:"";position:absolute;left:18%;top:11%;width:34%;height:22%;border-radius:50%;background:radial-gradient(ellipse,#fffd,#fff0 70%);transform:rotate(-30deg);pointer-events:none}
+.ball.selected{outline:3px solid var(--accent);outline-offset:3px;transform:translateY(-2px)}
+.b1{--c:#f5c518}.b2{--c:#1f5fbf}.b3{--c:#e03a2f}.b4{--c:#6a35b0}.b5{--c:#f2780c}.b6{--c:#1e9a55}.b7{--c:#8a1f33}.b8{--c:#17181b}
+.b9{background:radial-gradient(circle at 35% 30%,#fff6,#fff0 45%),linear-gradient(#f7f7f7 0 24%,#f5c518 24% 76%,#f7f7f7 76%)}
+.dead{padding:12px;margin-top:12px}.dead .dropzone{margin-top:8px}
+.footer-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.note{color:var(--muted);font-size:12px;margin:12px 2px}
+.history{margin-top:14px}.history h2{font-size:15px;margin:0 0 8px}.rackitem{display:flex;justify-content:space-between;gap:8px;padding:9px 10px;background:#fafafa;border:1px solid var(--line);border-radius:9px;margin-top:6px;font-size:13px}
+.winner{color:var(--good);font-weight:800}.hidden{display:none!important}
+@media(max-width:620px){header{padding-top:14px}.setup{grid-template-columns:1fr 1fr}.setup-actions{grid-column:1/-1}.scoregrid{grid-template-columns:1fr 1fr}.mid{grid-column:1/-1;grid-row:1;position:static}.player{padding:11px}.ball{width:38px;height:38px}.toolbar{align-items:flex-start}.score{font-size:33px}}
+@media print{body{background:white;color:#111}.setup,.toolbar,.footer-actions,.note,.dead .dropzone button{display:none!important}.player,.dead,.rackitem{background:white;color:#111;border-color:#aaa;break-inside:avoid}.statbox{background:white;color:#111}.statlabel,.target,.sl,.zonehead{color:#444}}
+</style>
+</head>
+<body>
+<header><div><div class="eyebrow">Match night • APA 9-Ball</div><h1>9-Ball Scorekeeper</h1></div><button id="exportTop" class="subtle">Export HTML ↓</button></header>
+<main>
+<section class="setup">
+ <div><label for="p1name">Player 1</label><input id="p1name" value="Player 1" maxlength="32"></div>
+ <div><label for="p2name">Player 2</label><input id="p2name" value="Player 2" maxlength="32"></div>
+ <div><label for="p1sl">Skill levels</label><div style="display:flex;gap:7px"><input id="p1sl" type="number" min="1" max="9" value="3" aria-label="Player 1 skill level"><input id="p2sl" type="number" min="1" max="9" value="4" aria-label="Player 2 skill level"></div></div>
+ <div class="setup-actions"><button id="apply" class="primary">Update players</button><button id="reset" class="danger subtle">New match</button></div>
+</section>
+<section class="toolbar"><div><div class="rack-title" id="rackTitle">Rack 1</div><div class="hint">Drag balls between zones, or tap a ball then tap its destination.</div></div><div class="footer-actions" style="margin:0"><button id="undo" class="subtle">Undo move</button><button id="nextRack" class="primary">Finish rack + next</button></div></section>
+<section class="scoregrid" id="scoregrid"></section>
+<section class="dead"><div class="playerhead"><div><div class="playername">Dead balls</div><div class="hint">Pocketed on a foul / not credited to either player</div></div><div class="sl" id="deadCount">0 balls</div></div><div class="dropzone" data-zone="dead"><div class="zonehead">Dead ball tray</div><div class="balls" id="deadBalls"></div></div></section>
+<div class="footer-actions"><button id="resetRack">Reset current rack</button><button id="exportBottom" class="primary">Download static HTML score sheet</button></div>
+<p class="note">Scoring: balls 1–8 = 1 point; the 9-ball = 2 points. Standard APA 9-ball points-to-win targets are shown from skill level. Ball locations are editable until you finish the rack. Innings are counted per rack; defenses are per player.</p>
+<section class="history"><h2>Completed racks</h2><div id="history"><div class="hint">No completed racks yet.</div></div></section>
+</main>
+<script>
+const targets={1:14,2:19,3:25,4:31,5:38,6:46,7:55,8:65,9:75};
+const colors=['','b1','b2','b3','b4','b5','b6','b7','b8','b9'];
+let state={players:[{name:'Player 1',sl:3,defenses:0,score:0},{name:'Player 2',sl:4,defenses:0,score:0}],rack:1,innings:0,locations:{},dead:[],history:[],selected:null,undo:[]};
+for(let i=1;i<=9;i++)state.locations[i]='table';
+const $=id=>document.getElementById(id);
+function target(p){return targets[Math.max(1,Math.min(9,p.sl))]||19}
+function ballPoints(n){return n===9?2:1}
+function totals(){let s=[0,0];state.history.forEach(r=>r.scores.forEach((v,i)=>s[i]+=v));for(let n=1;n<=9;n++){let z=state.locations[n];if(z==='p0')s[0]+=ballPoints(n);if(z==='p1')s[1]+=ballPoints(n)}return s}
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function ball(n){return `<div class="ball ${colors[n]} ${state.selected===n?'selected':''}" data-ball="${n}" draggable="true" aria-label="${n}-ball">${n}</div>`}
+function zoneBalls(zone){return Array.from({length:9},(_,i)=>i+1).filter(n=>state.locations[n]===zone).map(ball).join('')||'<span class="hint">Drop balls here</span>'}
+function playerCard(i,score){let p=state.players[i],t=target(p),pct=Math.min(100,score/t*100);return `<article class="player"><div class="playerhead"><div><div class="playername">${esc(p.name)}</div><div class="sl">Skill level ${p.sl} · Race to ${t}</div></div><div class="winner">${score>=t?'POINTS WON':''}</div></div><div class="scoreline"><span class="score">${score}</span><span class="target">/ ${t} points</span></div><div class="progress"><span style="width:${pct}%"></span></div><div class="statbox"><div class="statrow"><span class="statlabel">Defenses</span><div class="stepper"><button data-stat="${i}:defenses:-1">−</button><span class="statvalue">${p.defenses}</span><button data-stat="${i}:defenses:1">+</button></div></div></div><div class="dropzone" data-zone="p${i}"><div class="zonehead">Balls credited to ${esc(p.name)}</div><div class="balls">${zoneBalls('p'+i)}</div></div></article>`}
+function midCard(){return `<article class="player mid"><div class="innings"><span class="statlabel">Innings (rack)</span><div class="stepper"><button data-rackstat="-1">−</button><span class="statvalue">${state.innings}</span><button data-rackstat="1">+</button></div></div><div class="dropzone" data-zone="table"><div class="zonehead">Rack balls</div><div class="balls">${zoneBalls('table')}</div></div><div class="tablehint">&larr; drag a ball to a player &rarr;</div></article>`}
+function render(){let s=totals();$('rackTitle').textContent='Rack '+state.rack;$('scoregrid').innerHTML=playerCard(0,s[0])+midCard()+playerCard(1,s[1]);$('deadBalls').innerHTML=state.dead.map(ball).join('')||'<span class="hint">No dead balls</span>';$('deadCount').textContent=state.dead.length+' balls';$('history').innerHTML=state.history.length?state.history.map((r,i)=>`<div class="rackitem"><span>Rack ${i+1} · ${r.innings} inn · ${r.dead} dead</span><strong>${r.names[0]} ${r.scores[0]} – ${r.scores[1]} ${r.names[1]}</strong></div>`).join(''):'<div class="hint">No completed racks yet.</div>'}
+function snapshot(){state.undo.push(JSON.stringify({locations:state.locations,dead:state.dead}));if(state.undo.length>30)state.undo.shift()}
+function move(n,to){if(!n||!to)return;if(to==='dead'){snapshot();state.locations[n]='dead';if(!state.dead.includes(n))state.dead.push(n)}else if(to==='p0'||to==='p1'||to==='table'){snapshot();state.locations[n]=to;state.dead=state.dead.filter(x=>x!==n)}state.selected=null;render()}
+function hitBall(n){if(state.selected===n){state.selected=null;render();return}state.selected=n;render()}
+document.addEventListener('click',e=>{let b=e.target.closest('[data-ball]');if(b){hitBall(+b.dataset.ball);return}let z=e.target.closest('[data-zone]');if(z&&state.selected){move(state.selected,z.dataset.zone);return}let rs=e.target.closest('[data-rackstat]');if(rs){state.innings=Math.max(0,state.innings+ +rs.dataset.rackstat);render();return}let st=e.target.closest('[data-stat]');if(st){let [i,k,d]=st.dataset.stat.split(':');state.players[+i][k]=Math.max(0,state.players[+i][k]+ +d);render()}});
+document.addEventListener('dragstart',e=>{let b=e.target.closest('[data-ball]');if(!b)return;e.dataTransfer.setData('text/plain',b.dataset.ball);e.dataTransfer.effectAllowed='move'});
+document.addEventListener('dragover',e=>{let z=e.target.closest('[data-zone]');if(z){e.preventDefault();z.classList.add('over')}});
+document.addEventListener('dragleave',e=>{let z=e.target.closest('[data-zone]');if(z)z.classList.remove('over')});
+document.addEventListener('drop',e=>{let z=e.target.closest('[data-zone]');if(!z)return;e.preventDefault();z.classList.remove('over');move(+e.dataTransfer.getData('text/plain'),z.dataset.zone)});
+function rackSnapshot(){let balls=[[],[]],dead=[];for(let n=1;n<=9;n++){let z=state.locations[n];if(z==='p0')balls[0].push(n);else if(z==='p1')balls[1].push(n);else if(z==='dead')dead.push(n)}return{balls,deadBalls:dead}}
+function resetRack(){for(let n=1;n<=9;n++)state.locations[n]='table';state.dead=[];state.selected=null;render()}
+function finishRack(){let scores=[0,0];for(let n=1;n<=9;n++){let z=state.locations[n];if(z==='p0')scores[0]+=ballPoints(n);if(z==='p1')scores[1]+=ballPoints(n)}state.history.push({scores,dead:state.dead.length,innings:state.innings,...rackSnapshot(),names:state.players.map(p=>p.name)});state.rack++;state.innings=0;state.undo=[];resetRack()}
+function applyPlayers(){state.players.forEach((p,i)=>{p.name=$('p'+(i+1)+'name').value.trim()||'Player '+(i+1);p.sl=Math.max(1,Math.min(9,+$('p'+(i+1)+'sl').value||2))});render()}
+$('apply').onclick=applyPlayers;
+$('resetRack').onclick=()=>{if(confirm('Reset all ball placements in this rack?')){state.undo=[];resetRack()}};
+$('nextRack').onclick=()=>{finishRack()};
+$('undo').onclick=()=>{let s=state.undo.pop();if(s){let v=JSON.parse(s);state.locations=v.locations;state.dead=v.dead;state.selected=null;render()}};
+$('reset').onclick=()=>{if(confirm('Start a new match and clear all scores, racks, innings and defenses?')){state.history=[];state.rack=1;state.innings=0;state.players.forEach(p=>{p.defenses=0});state.undo=[];resetRack()}};
+function exportSheet(){let s=totals(),p=state.players;
+const mini=n=>`<span class="ball b${n}">${n}</span>`;
+const cell=a=>a.length?a.map(mini).join(''):'<span class="none">-</span>';
+let racks=state.history.map((r,i)=>({n:i+1,names:r.names,scores:r.scores,innings:r.innings,balls:r.balls||[[],[]],dead:r.deadBalls||[],live:false}));
+let cur=rackSnapshot();if(cur.balls[0].length||cur.balls[1].length||cur.deadBalls.length||state.innings){let cs=[0,0];cur.balls.forEach((a,k)=>a.forEach(n=>cs[k]+=ballPoints(n)));racks.push({n:state.rack,names:p.map(x=>x.name),scores:cs,innings:state.innings,balls:cur.balls,dead:cur.deadBalls,live:true})}
+let totalInnings=racks.reduce((a,r)=>a+r.innings,0);
+let rows=racks.map(r=>`<tr><td>${r.n}${r.live?'<br><span class="muted">in progress</span>':''}</td><td class="balls">${cell(r.balls[0])}</td><td><b>${r.scores[0]}</b></td><td><b>${r.scores[1]}</b></td><td class="balls">${cell(r.balls[1])}</td><td class="balls">${cell(r.dead)}</td><td>${r.innings}</td></tr>`).join('');
+let css=`*{box-sizing:border-box}body{font:16px/1.4 system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;margin:0 auto;padding:20px 14px 40px;max-width:900px;color:#111}h1{margin-bottom:4px}table{border-collapse:collapse;width:100%;margin-top:20px}td,th{border:1px solid #888;padding:9px;text-align:center;vertical-align:middle}th{background:#eee}.summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:20px 0}.summary div{padding:12px;border:1px solid #aaa;border-radius:10px}.summary h2{margin:4px 0}.summary p{margin:0}.wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}.muted{color:#555;font-size:13px}.none{color:#999}.balls{min-width:96px}@media(max-width:600px){body{font-size:14px;padding:14px 10px 30px}h1{font-size:1.3rem}td,th{padding:6px 4px}.ball{width:22px;height:22px;font-size:11px;margin:1px}.balls{min-width:72px}.summary{grid-template-columns:1fr 1fr}.summary div:last-child{grid-column:1/-1}table{font-size:13px}}@media print{body{padding:0;max-width:none}.wrap{overflow:visible}}.ball{--c:#999;display:inline-grid;place-items:center;width:26px;height:26px;margin:2px;border-radius:50%;font:800 12px Arial;color:#17181b;position:relative;isolation:isolate;background:radial-gradient(circle at 35% 30%,color-mix(in srgb,var(--c),#fff 35%),var(--c) 55%,color-mix(in srgb,var(--c),#000 40%));box-shadow:inset -2px -3px 5px #0004,0 1px 3px #0003;-webkit-print-color-adjust:exact;print-color-adjust:exact}.ball::before{content:"";position:absolute;width:48%;height:48%;border-radius:50%;background:#fff;z-index:-1}.b1{--c:#f5c518}.b2{--c:#1f5fbf}.b3{--c:#e03a2f}.b4{--c:#6a35b0}.b5{--c:#f2780c}.b6{--c:#1e9a55}.b7{--c:#8a1f33}.b8{--c:#17181b}.b9{background:linear-gradient(#f7f7f7 0 24%,#f5c518 24% 76%,#f7f7f7 76%)}`;
+let doc=`<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>APA 9-Ball Match Score Sheet</title><style>${css}</style></head><body><h1>APA 9-Ball Match Score Sheet</h1><p class="muted">Exported ${new Date().toLocaleString()}</p><div class="summary"><div><b>${esc(p[0].name)}</b><h2>${s[0]} / ${target(p[0])}</h2><p>SL ${p[0].sl} · Defenses ${p[0].defenses}</p></div><div><b>${esc(p[1].name)}</b><h2>${s[1]} / ${target(p[1])}</h2><p>SL ${p[1].sl} · Defenses ${p[1].defenses}</p></div><div><b>Match</b><h2>${totalInnings}</h2><p>Total innings</p></div></div><h2>Rack-by-rack results</h2><div class="wrap"><table><thead><tr><th>Rack</th><th>${esc(p[0].name)}<br>balls</th><th>Pts</th><th>Pts</th><th>${esc(p[1].name)}<br>balls</th><th>Dead balls</th><th>Innings</th></tr></thead><tbody>${rows}</tbody></table></div><p class="muted">Scoring: balls 1–8 = 1 point; 9-ball = 2 points. Innings are counted per rack. A rack marked in progress is included in the totals.</p></body></html>`;let blob=new Blob([doc],{type:'text/html'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='apa-9-ball-score-sheet.html';a.click();URL.revokeObjectURL(url)}
+$('exportTop').onclick=exportSheet;$('exportBottom').onclick=exportSheet;
+render();
+</script>
+</body></html>
